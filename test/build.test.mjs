@@ -11,4 +11,7 @@ test("sample data builds into an indexed site", () => {
   assert.ok(existsSync("site/index.html"));
   assert.ok(existsSync("site/pagefind/pagefind.js"));
   assert.equal(readdirSync("site/r").length, 4);
+  assert.ok(existsSync("site/vendor/openseadragon/openseadragon.min.js"));
+  assert.ok(existsSync("site/vendor/openseadragon/LICENSE.txt"));
+  assert.ok(existsSync("site/img/sample-page.svg"));
 });

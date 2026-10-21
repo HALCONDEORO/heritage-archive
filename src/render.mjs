@@ -24,10 +24,16 @@ export function recordPage(r, site) {
   <p class="meta">${esc(r.residencia ?? "")}${r.parroquia ? ", " + esc(r.parroquia) : ""}${r.municipio ? ", " + esc(r.municipio) : ""} · ${esc(r.anio)} · household ${esc(r.hogar)} · page ${esc(r.pagina)}</p>
   <p><span class="tag ${esc(r.confianza)}" data-pagefind-filter="reading">${esc(CONF[r.confianza] ?? r.confianza)}</span>${r.revisado ? ' <span class="tag alta">reviewed</span>' : ' <span class="tag media">not reviewed</span>'}</p>
   <p class="fuente">Source: ${esc(r.fuente)}</p>
-  <p data-pagefind-ignore><a class="doc" href="../${esc(r.imagen)}" target="_blank" rel="noopener">View the original page (${esc(r.pagina)})</a></p>
+  <div data-pagefind-ignore>
+    <p><a class="doc" href="../${esc(r.imagen)}" target="_blank" rel="noopener">Open the original page (${esc(r.pagina)}) in a new tab</a></p>
+    <div id="viewer" role="img" aria-label="Zoomable scan of the original page ${esc(r.pagina)}" data-src="../${esc(r.imagen)}"></div>
+    <p class="meta">Scroll or use the buttons to zoom, drag to move.</p>
+  </div>
   <span hidden data-pagefind-filter="municipio">${esc(r.municipio)}</span>
   <span hidden data-pagefind-filter="year">${esc(r.anio)}</span>
 </main>
+<script src="../vendor/openseadragon/openseadragon.min.js"></script>
+<script src="../viewer.js"></script>
 </body>
 </html>
 `;
@@ -59,7 +65,20 @@ export function indexPage(site, count) {
 `;
 }
 
-export const STYLE = `:root { color-scheme: light; }
+export const VIEWER_JS = `const el = document.getElementById("viewer");
+if (el && window.OpenSeadragon) {
+  OpenSeadragon({
+    element: el,
+    prefixUrl: "../vendor/openseadragon/images/",
+    tileSources: { type: "image", url: el.dataset.src },
+    showNavigator: true,
+    gestureSettingsMouse: { scrollToZoom: true },
+  });
+}
+`;
+
+export const STYLE = `#viewer { width: 100%; height: 32rem; background: #1f1a14; border: 1px solid #b7a582; border-radius: 6px; }
+:root { color-scheme: light; }
 body { font-family: Georgia, 'Times New Roman', serif; max-width: 62rem; margin: 0 auto; padding: 1.5rem 1rem; color: #2b2118; background: #f7f2e9; }
 h1 { font-size: 1.6rem; margin: 0 0 .2rem; }
 .meta, header p { color: #6d5c44; font-size: .95rem; }

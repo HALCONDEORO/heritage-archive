@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600" role="img" aria-label="Synthetic sample page">
+  <rect width="1200" height="1600" fill="#f4ecd8"/>
+  <rect x="60" y="60" width="1080" height="1480" fill="none" stroke="#8a7a5c" stroke-width="4"/>
+  <text x="600" y="150" font-family="Georgia, serif" font-size="56" text-anchor="middle" fill="#2b2118">SAMPLE PAGE</text>
+  <text x="600" y="215" font-family="Georgia, serif" font-size="30" text-anchor="middle" fill="#6d5c44">Synthetic image for demonstration only. Not a real document.</text>
+  <g stroke="#8a7a5c" stroke-width="2">
+    <line x1="120" y1="300" x2="1080" y2="300"/><line x1="120" y1="380" x2="1080" y2="380"/>
+    <line x1="120" y1="460" x2="1080" y2="460"/><line x1="120" y1="540" x2="1080" y2="540"/>
+    <line x1="120" y1="620" x2="1080" y2="620"/><line x1="120" y1="700" x2="1080" y2="700"/>
+  </g>
+  <g font-family="Georgia, serif" font-size="34" fill="#2b2118">
+    <text x="130" y="350">1. Sample Person One, 40, married</text>
+    <text x="130" y="430">2. Sample Person Two, 38, married</text>
+    <text x="130" y="510">3. Sample Person Three, 12, single</text>
+    <text x="130" y="590">4. Sampl&#243; P&#233;rez &#209;and&#250;, 9, single</text>
+  </g>
+</svg>
