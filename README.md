@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.svg" alt="Heritage Archive: static portals for historical records" width="900">
+</p>
+
 # Heritage Archive
 
 Static portals for historical records archives.
@@ -38,3 +42,7 @@ Only record collections where every person is long deceased are indexed.
 ## Credits and license
 
 Third-party components and their licenses are listed in `CREDITS.md`. This project is released under the GNU Affero General Public License v3.0 (see `LICENSE`).
+
+## Images
+
+`docs/images/` holds the README banner and the social preview (`social.png`, 1280x640). Own work, CC BY 4.0. Text is converted to paths from Playfair Display and Poppins (SIL OFL 1.1).
