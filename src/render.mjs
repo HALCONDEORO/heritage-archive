@@ -1,11 +1,14 @@
 // Pure rendering helpers (no file I/O) so they can be unit tested.
 export const fold = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// Image paths must be plain relative paths inside the site (no scheme, no "..", no leading slash).
+export const safeImage = (p) => (/^[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/.test(String(p ?? "")) && !String(p).split("/").includes("..") ? String(p) : "");
 export const safeId = (id) => String(id).replace(/[^A-Za-z0-9._-]/g, "_");
 
 const CONF = { alta: "reliable reading", media: "check reading", baja: "doubtful reading" };
 
 export function recordPage(r, site) {
+  const img = safeImage(r.imagen);
   const full = `${r.nombre} ${r.apellidos}`.trim();
   const meta = [r.relacion, r.edad != null ? `${r.edad} years` : "", r.estado, r.profesion].filter(Boolean).map(esc).join(" · ");
   return `<!doctype html>
@@ -25,8 +28,8 @@ export function recordPage(r, site) {
   <p><span class="tag ${esc(r.confianza)}" data-pagefind-filter="reading">${esc(CONF[r.confianza] ?? r.confianza)}</span>${r.revisado ? ' <span class="tag alta">reviewed</span>' : ' <span class="tag media">not reviewed</span>'}</p>
   <p class="fuente">Source: ${esc(r.fuente)}</p>
   <div data-pagefind-ignore>
-    <p><a class="doc" href="../${esc(r.imagen)}" target="_blank" rel="noopener">Open the original page (${esc(r.pagina)}) in a new tab</a></p>
-    <div id="viewer" role="img" aria-label="Zoomable scan of the original page ${esc(r.pagina)}" data-src="../${esc(r.imagen)}"></div>
+    <p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">Open the original page (${esc(r.pagina)}) in a new tab</a></p>
+    <div id="viewer" role="img" aria-label="Zoomable scan of the original page ${esc(r.pagina)}" data-src="../${esc(img)}"></div>
     <p class="meta">Scroll or use the buttons to zoom, drag to move.</p>
   </div>
   <span hidden data-pagefind-filter="municipio">${esc(r.municipio)}</span>
