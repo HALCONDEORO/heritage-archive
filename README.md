@@ -4,16 +4,20 @@ Static portals for historical records archives.
 
 Person-level index of historical municipal record collections (census rolls, minute books) with an online search portal and the document image beside each entry.
 
-This repository contains the **static portal generator**: it turns a JSON index of records into a plain HTML/CSS/JS portal with in-browser, accent-insensitive name search and one page per record. No framework, no build dependencies.
+This repository contains the **static portal generator**: it turns a JSON index of records into a plain HTML/CSS/JS portal with one page per record and in-browser, accent-insensitive name search powered by [Pagefind](https://pagefind.app) (MIT). No framework and no server: the output is static files.
 
 The transcription pipeline that produces the index from page scans is private and not part of this repository.
 
 ## Quick start
 
 ```sh
+npm ci
 cp data/records.sample.json data/records.json   # marked synthetic sample data
-npm run build                                    # writes the portal to site/
+npm run build                                    # writes the portal to site/ and indexes it
+npm test
 ```
+
+`data/records.json` and `data/img/` are git-ignored on purpose: real data and scans stay out of this repository. Optional `data/site.json` overrides `lang`, `title`, `subtitle` and `placeholder`.
 
 Serve `site/` with any static file server.
 
