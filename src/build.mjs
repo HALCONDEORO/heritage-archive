@@ -1,24 +1,30 @@
-// Static portal generator: records.json -> site/ (index + search + fichas).
-// No framework, no build deps: the output is plain HTML/CSS/JS served from macd-prod-01.
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+// Static portal generator: data/records.json -> site/ (index page + one page per record),
+// then Pagefind (MIT) indexes the pages for in-browser, accent-insensitive search.
+// Run with `npm run build`. Output is plain HTML/CSS/JS.
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync, rmSync } from "node:fs";
+import { recordPage, indexPage, safeId, STYLE } from "./render.mjs";
 
-// Load your own index into data/records.json (see README). A marked synthetic
-// sample ships in data/records.sample.json: copy it over to try the build.
+const DEFAULT_SITE = {
+  lang: "en",
+  title: "Heritage Archive",
+  subtitle: "Person-level index of a historical records collection.",
+  placeholder: "Search by name or surname",
+};
+
 const records = JSON.parse(readFileSync("data/records.json", "utf8"));
-mkdirSync("site", { recursive: true });
-import { readdirSync as rd, copyFileSync as cp } from "node:fs";
+const site = { ...DEFAULT_SITE, ...(existsSync("data/site.json") ? JSON.parse(readFileSync("data/site.json", "utf8")) : {}) };
+
+rmSync("site", { recursive: true, force: true });
+mkdirSync("site/r", { recursive: true });
+
 // Page images are optional: they belong to the source archive and are not
 // redistributed with this repository.
 if (existsSync("data/img")) {
   mkdirSync("site/img", { recursive: true });
-  for (const f of rd("data/img")) cp("data/img/" + f, "site/img/" + f);
+  for (const f of readdirSync("data/img")) copyFileSync("data/img/" + f, "site/img/" + f);
 }
 
-const fold = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const index = records.map((r) => ({ i: r.id, n: fold(`${r.nombre} ${r.apellidos}`) }));
-writeFileSync("site/index.json", JSON.stringify(index));
-writeFileSync("site/records.json", JSON.stringify(records));
-
-const html = readFileSync("src/template.html", "utf8");
-writeFileSync("site/index.html", html);
-console.log(`site/ built: ${records.length} records, index ${index.length} entries`);
+writeFileSync("site/style.css", STYLE);
+for (const r of records) writeFileSync(`site/r/${safeId(r.id)}.html`, recordPage(r, site));
+writeFileSync("site/index.html", indexPage(site, records.length));
+console.log(`site/ built: ${records.length} record pages`);

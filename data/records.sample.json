@@ -55,5 +55,24 @@
     "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
     "confianza": "alta",
     "revisado": true
+  },
+  {
+    "id": "sample-0004",
+    "nombre": "Sampló",
+    "apellidos": "Pérez Ñandú",
+    "relacion": "hijo",
+    "edad": 9,
+    "estado": "soltero",
+    "profesion": "",
+    "residencia": "Sampletown",
+    "parroquia": "Sampletown",
+    "municipio": "Sampletown",
+    "anio": 1900,
+    "pagina": 1,
+    "hogar": 1,
+    "imagen": "img/sample-page.png",
+    "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
+    "confianza": "alta",
+    "revisado": true
   }
 ]

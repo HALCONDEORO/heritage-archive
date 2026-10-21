@@ -3,7 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node src/build.mjs",
-    "test": "node --test test/"
+    "build": "node src/build.mjs && pagefind --site site",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "openseadragon": "^6.1.1",
+    "pagefind": "^1.5.2"
   }
 }

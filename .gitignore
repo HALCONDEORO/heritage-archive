@@ -1,3 +1,5 @@
 fuentes/
 site/
 node_modules/
+data/records.json
+data/img/
