@@ -27,6 +27,8 @@ Write your index as `data/records.json`: an array of person records following th
 
 ## Page images
 
+Record pages show the page image in an [OpenSeadragon](https://openseadragon.github.io) zoom viewer (BSD-3-Clause, copied into `site/vendor/` at build time).
+
 Each record can point to the image of its source page (`imagen` field, files under `data/img/`). Images are **not redistributed with this repository**: they belong to the source archive (for the pilot, the Archivo Municipal de Colunga, which publishes the scans on colunga.es). Place your own images in `data/img/` before building; the portal works without them.
 
 ## Privacy
