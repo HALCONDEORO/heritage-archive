@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archivo de Colunga — índice de personas (padrón 1869)</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 62rem; margin: 0 auto; padding: 1.5rem 1rem; color: #2b2118; background: #f7f2e9; }
+  header h1 { font-size: 1.6rem; margin: 0 0 .2rem; }
+  header p { margin: 0 0 1rem; color: #6d5c44; font-size: .95rem; }
+  input { width: 100%; box-sizing: border-box; padding: .7rem; font-size: 1.1rem; border: 1px solid #b7a582; border-radius: 6px; background: #fff; }
+  #n { color: #6d5c44; font-size: .85rem; margin: .4rem 0 0; }
+  .ficha { background: #fffdf7; border: 1px solid #d8c9a8; border-radius: 8px; padding: 1rem; margin: .8rem 0; display: flex; gap: 1rem; align-items: flex-start; }
+  .ficha img { width: 15rem; max-width: 40vw; border: 1px solid #b7a582; border-radius: 4px; cursor: zoom-in; }
+  .ficha h2 { font-size: 1.15rem; margin: 0 0 .3rem; }
+  .meta { color: #6d5c44; font-size: .9rem; line-height: 1.5; }
+  .tag { display: inline-block; font-size: .72rem; padding: .1rem .45rem; border-radius: 999px; margin-left: .4rem; vertical-align: middle; }
+  .alta { background: #dcefd9; color: #2c5d2c; } .media { background: #fdf0d0; color: #8a6d1f; } .baja { background: #f8ddda; color: #96372e; }
+  .fuente { font-size: .75rem; color: #8a7a5c; margin-top: .5rem; }
+  a.doc { font-size: .8rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Archivo Municipal de Colunga — índice de personas</h1>
+  <p>Padrón de habitantes 1869 · parroquia de Sales · Sign. C 180/3 · Fondo publicado por el Ayuntamiento de Colunga</p>
+  <p style="background:#fdf0d0;border:1px solid #d8c9a8;border-radius:6px;padding:.5rem .7rem;font-size:.85rem"><strong>Índice en revisión:</strong> borrador producido por IA a partir de las imágenes; cada ficha marca la confianza de la lectura y queda pendiente de revisión humana.</p>
+</header>
+<input id="q" type="search" placeholder="Buscar por nombre o apellidos… (p. ej. Piero, Vallina, José)" autofocus>
+<div id="n"></div>
+<div id="out"></div>
+<script type="module">
+const [idx, recs] = await Promise.all([
+  fetch("index.json").then(r => r.json()),
+  fetch("records.json").then(r => r.json()),
+]);
+const fold = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const byId = Object.fromEntries(recs.map(r => [r.id, r]));
+const q = document.getElementById("q"), out = document.getElementById("out"), n = document.getElementById("n");
+const ficha = r => `
+  <div class="ficha">
+    <div style="flex:1">
+      <h2>${r.nombre} ${r.apellidos}<span class="tag ${r.confianza}">${r.confianza === "alta" ? "lectura segura" : r.confianza === "media" ? "revisar lectura" : "lectura dudosa"}</span></h2>
+      <div class="meta">
+        ${r.relacion ? r.relacion + " · " : ""}${r.edad != null ? r.edad + " años · " : ""}${r.estado ?? ""}${r.profesion ? " · " + r.profesion : ""}<br>
+        ${r.parroquia}, ${r.municipio} · padrón de ${r.anio} · hogar n.º ${r.hogar} · página ${r.pagina}<br>
+        <a class="doc" href="${r.imagen}" target="_blank">Ver documento original (página ${r.pagina})</a>
+      </div>
+      <div class="fuente">Fuente: ${r.fuente}</div>
+    </div>
+    <a href="${r.imagen}" target="_blank"><img src="${r.imagen}" alt="Documento original" loading="lazy"></a>
+  </div>`;
+const render = () => {
+  const needle = fold(q.value.trim());
+  const hits = needle ? idx.filter(e => e.n.includes(needle)).slice(0, 60) : idx.slice(0, 60);
+  n.textContent = needle ? `${hits.length} resultado(s)` : `${idx.length} asientos indexados — escribe para buscar`;
+  out.innerHTML = hits.length ? hits.map(h => ficha(byId[h.i])).join("") : "<p>Sin resultados.</p>";
+};
+q.addEventListener("input", render);
+render();
+</script>
+</body>
+</html>
