@@ -5,7 +5,7 @@ Third-party components and their licenses:
 | Component | Use | License |
 |---|---|---|
 | Kraken (mittagessen/kraken) | Planned HTR engine | Apache-2.0 |
-| Pagefind | Planned static search | MIT |
+| Pagefind | Static search: build-time indexer, and its runtime JS/WASM is shipped in the generated `site/pagefind/` | MIT |
 | OpenSeadragon | Planned image viewer | BSD-3-Clause |
 | poppler (pdftoppm) | Page extraction | GPL-2.0 (internal tool only, not distributed) |
 
