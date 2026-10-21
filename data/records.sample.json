@@ -16,7 +16,14 @@
     "imagen": "img/sample-page.svg",
     "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
     "confianza": "alta",
-    "revisado": true
+    "revisado": true,
+    "linea": {
+      "x": 0.1,
+      "y": 0.1938,
+      "w": 0.3,
+      "h": 0.0375,
+      "aspect": 0.75
+    }
   },
   {
     "id": "sample-0002",
@@ -35,7 +42,14 @@
     "imagen": "img/sample-page.svg",
     "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
     "confianza": "alta",
-    "revisado": true
+    "revisado": true,
+    "linea": {
+      "x": 0.1,
+      "y": 0.2437,
+      "w": 0.3,
+      "h": 0.0375,
+      "aspect": 0.75
+    }
   },
   {
     "id": "sample-0003",
