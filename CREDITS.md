@@ -1,12 +1,12 @@
 # CREDITS
 
-Dependencias de terceros y sus licencias:
+Third-party components and their licenses:
 
-| Componente | Uso | Licencia |
+| Component | Use | License |
 |---|---|---|
-| Kraken (mittagessen/kraken) | Motor HTR planeado | Apache-2.0 |
-| Pagefind | Búsqueda estática planeada | MIT |
-| OpenSeadragon | Visor de imagen planeado | BSD-3-Clause |
-| poppler (pdftoppm) | Extracción de páginas | GPL-2.0 (solo herramienta interna, no se distribuye) |
+| Kraken (mittagessen/kraken) | Planned HTR engine | Apache-2.0 |
+| Pagefind | Planned static search | MIT |
+| OpenSeadragon | Planned image viewer | BSD-3-Clause |
+| poppler (pdftoppm) | Page extraction | GPL-2.0 (internal tool only, not distributed) |
 
-Fuentes documentales: Padrón de habitantes de Colunga 1869-1870, signatura C 180/3, Archivo Municipal de Colunga, publicado en https://www.colunga.es/padrones-de-habitantes
+Documentary sources: Padron de habitantes de Colunga 1869-1870, shelfmark C 180/3, Archivo Municipal de Colunga, published at https://www.colunga.es/padrones-de-habitantes
