@@ -21,6 +21,7 @@ test("safeId keeps ids usable as file names", () => {
 test("record page is indexable and escapes record text", () => {
   const html = recordPage(rec, site);
   assert.match(html, /data-pagefind-body/);
+  assert.match(html, /id="viewer"/);
   assert.match(html, /Pérez &lt;b&gt;/);
   assert.doesNotMatch(html, /<b>/);
 });
