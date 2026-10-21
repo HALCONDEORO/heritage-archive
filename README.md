@@ -1,4 +1,6 @@
-# archivo-piloto
+# Heritage Archive
+
+Static portals for historical records archives.
 
 Person-level index of historical municipal record collections (census rolls, minute books) with an online search portal and the document image beside each entry.
 
