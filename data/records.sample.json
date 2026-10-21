@@ -13,7 +13,7 @@
     "anio": 1900,
     "pagina": 1,
     "hogar": 1,
-    "imagen": "img/sample-page.png",
+    "imagen": "img/sample-page.svg",
     "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
     "confianza": "alta",
     "revisado": true
@@ -32,7 +32,7 @@
     "anio": 1900,
     "pagina": 1,
     "hogar": 1,
-    "imagen": "img/sample-page.png",
+    "imagen": "img/sample-page.svg",
     "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
     "confianza": "alta",
     "revisado": true
@@ -51,7 +51,7 @@
     "anio": 1900,
     "pagina": 1,
     "hogar": 1,
-    "imagen": "img/sample-page.png",
+    "imagen": "img/sample-page.svg",
     "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
     "confianza": "alta",
     "revisado": true
@@ -70,7 +70,7 @@
     "anio": 1900,
     "pagina": 1,
     "hogar": 1,
-    "imagen": "img/sample-page.png",
+    "imagen": "img/sample-page.svg",
     "fuente": "SAMPLE DATA - synthetic record for demonstration only, not a real person",
     "confianza": "alta",
     "revisado": true
