@@ -13,7 +13,8 @@ The transcription pipeline that produces the index from page scans is private an
 ```sh
 npm ci
 cp data/records.sample.json data/records.json   # marked synthetic sample data
-npm run build                                    # writes the portal to site/ and indexes it
+npm run validate                                 # checks data/records.json against docs/MODELO.md
+npm run build                                    # writes the portal to site/ and indexes it (validates first)
 npm test
 ```
 

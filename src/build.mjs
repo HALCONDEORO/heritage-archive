@@ -2,6 +2,7 @@
 // then Pagefind (MIT) indexes the pages for in-browser, accent-insensitive search.
 // Run with `npm run build`. Output is plain HTML/CSS/JS.
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync, rmSync, cpSync } from "node:fs";
+import { validateRecords } from "./validate.mjs";
 import { recordPage, indexPage, safeId, STYLE, VIEWER_JS } from "./render.mjs";
 
 const DEFAULT_SITE = {
@@ -12,6 +13,8 @@ const DEFAULT_SITE = {
 };
 
 const records = JSON.parse(readFileSync("data/records.json", "utf8"));
+const problems = validateRecords(records);
+if (problems.length) { console.error(`data/records.json: ${problems.length} problem(s)\n- ${problems.join("\n- ")}`); process.exit(1); }
 const site = { ...DEFAULT_SITE, ...(existsSync("data/site.json") ? JSON.parse(readFileSync("data/site.json", "utf8")) : {}) };
 
 rmSync("site", { recursive: true, force: true });
