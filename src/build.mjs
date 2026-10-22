@@ -2,7 +2,8 @@
 // then Pagefind (MIT) indexes the pages for in-browser, accent-insensitive search.
 // Run with `npm run build`. Output is plain HTML/CSS/JS.
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync, rmSync, cpSync } from "node:fs";
-import { recordPage, indexPage, safeId, STYLE, VIEWER_JS } from "./render.mjs";
+import { validateRecords } from "./validate.mjs";
+import { recordPage, indexPage, safeId, robotsTxt, sitemapXml, STYLE, VIEWER_JS } from "./render.mjs";
 
 const DEFAULT_SITE = {
   lang: "en",
@@ -12,6 +13,8 @@ const DEFAULT_SITE = {
 };
 
 const records = JSON.parse(readFileSync("data/records.json", "utf8"));
+const problems = validateRecords(records);
+if (problems.length) { console.error(`data/records.json: ${problems.length} problem(s)\n- ${problems.join("\n- ")}`); process.exit(1); }
 const site = { ...DEFAULT_SITE, ...(existsSync("data/site.json") ? JSON.parse(readFileSync("data/site.json", "utf8")) : {}) };
 
 rmSync("site", { recursive: true, force: true });
@@ -37,4 +40,6 @@ writeFileSync("site/style.css", STYLE);
 writeFileSync("site/viewer.js", VIEWER_JS);
 for (const r of records) writeFileSync(`site/r/${safeId(r.id)}.html`, recordPage(r, site));
 writeFileSync("site/index.html", indexPage(site, records.length));
+writeFileSync("site/robots.txt", robotsTxt(site));
+if (site.indexable === true && site.baseUrl) writeFileSync("site/sitemap.xml", sitemapXml(site, records));
 console.log(`site/ built: ${records.length} record pages`);
