@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fold, esc, safeId, safeImage, recordPage, indexPage, safeBox, nameBox, lineCropHtml, NAME_MARGIN, VIEWER_JS } from "../src/render.mjs";
+import { fold, esc, safeId, safeImage, recordPage, indexPage, safeBox, nameBox, lineCropHtml, NAME_MARGIN, VIEWER_JS, STYLE } from "../src/render.mjs";
 
 const site = { lang: "en", title: "Test Archive", subtitle: "s", placeholder: "Search" };
 const rec = { id: "x/1", nombre: "Sampló", apellidos: "Pérez <b>", relacion: "hijo", edad: 9, estado: "soltero", profesion: "", residencia: "A", parroquia: "B", municipio: "C", anio: 1900, pagina: 1, hogar: 1, imagen: "img/p.svg", fuente: "SAMPLE DATA", confianza: "alta", revisado: false };
@@ -79,6 +79,31 @@ test("viewer script fits the line and adds a highlight overlay", () => {
   assert.match(VIEWER_JS, /addOverlay/);
 });
 
+test("pages have a skip link to an existing main landmark, and the viewer is keyboard reachable", () => {
+  for (const html of [recordPage(rec, site), indexPage(site, 1)]) {
+    assert.match(html, /<a class="skip" href="#main">/);
+    assert.equal((html.match(/<main\b/g) || []).length, 1);
+    assert.match(html, /<main id="main"/);
+  }
+  assert.match(recordPage(rec, site), /id="viewer" role="region" tabindex="0"/);
+});
+
+test("static a11y checks on generated markup: images have alt, links have text, no empty headings, no positive tabindex", () => {
+  for (const html of [recordPage({ ...rec, imagen: "img/x.svg", linea: { x: 0.1, y: 0.1, w: 0.5, h: 0.05, aspect: 0.75 } }, site), indexPage(site, 1)]) {
+    for (const m of html.matchAll(/<img\b[^>]*>/g)) assert.match(m[0], /\balt="/, m[0]);
+    for (const m of html.matchAll(/<a\b[^>]*>(.*?)<\/a>/gs)) assert.ok(m[1].replace(/<[^>]*>/g, "").trim().length > 0, m[0]);
+    for (const m of html.matchAll(/<h([1-6])\b[^>]*>(.*?)<\/h\1>/gs)) assert.ok(m[2].trim().length > 0);
+    assert.doesNotMatch(html, /tabindex="[1-9]/);
+  }
+});
+
+test("a record with a hostile name, no image and an out-of-range box still renders safely", () => {
+  const html = recordPage({ ...rec, nombre: '<script>alert(1)</script>"', imagen: "../etc/passwd", linea: { x: 2, y: 0, w: 1, h: 1 } }, site);
+  assert.doesNotMatch(html, /<script>alert/);
+  assert.doesNotMatch(html, /etc\/passwd/);
+  assert.doesNotMatch(html, /linecrop-box/);
+});
+
 import { robotsMeta, robotsTxt, sitemapXml, basePath } from "../src/render.mjs";
 
 test("pages are noindex by default and indexable only when site.indexable is true", () => {
@@ -104,4 +129,11 @@ test("baseUrl path prefixes Pagefind result links", () => {
   assert.equal(basePath({ baseUrl: "https://example.org/archive" }), "/archive/");
   assert.equal(basePath({ baseUrl: "not a url" }), "");
   assert.match(indexPage({ ...site, baseUrl: "https://example.org/archive/" }, 1), /<pagefind-config base-url="\/archive\/"><\/pagefind-config>/);
+});
+
+test("dark-mode Pagefind variables come after the light ones, so the dark values win the cascade", () => {
+  const light = STYLE.indexOf(":root { --pagefind-ui-scale");
+  const dark = STYLE.indexOf("@media (prefers-color-scheme: dark)");
+  const darkVars = STYLE.indexOf("--pagefind-ui-background", dark);
+  assert.ok(light >= 0 && dark > light && darkVars > dark, "light :root must precede the dark media block");
 });

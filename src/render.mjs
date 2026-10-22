@@ -88,8 +88,9 @@ export function recordPage(r, site) {
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<main data-pagefind-body>
-  <p data-pagefind-ignore><a href="../index.html">&larr; ${esc(site.title)}</a></p>
+<a class="skip" href="#main">Skip to content</a>
+<nav data-pagefind-ignore aria-label="Breadcrumb"><a href="../index.html">&larr; ${esc(site.title)}</a></nav>
+<main id="main" data-pagefind-body>
   <h1 data-pagefind-meta="title">${esc(full)}</h1>
   <p class="meta">${meta}</p>
   <p class="meta">${esc(r.residencia ?? "")}${r.parroquia ? ", " + esc(r.parroquia) : ""}${r.municipio ? ", " + esc(r.municipio) : ""} · ${esc(r.anio)} · household ${esc(r.hogar)} · page ${esc(r.pagina)}</p>
@@ -98,8 +99,8 @@ export function recordPage(r, site) {
   <div data-pagefind-ignore>
     <p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">Open the original page (${esc(r.pagina)}) in a new tab</a></p>
     ${lineCropHtml(r)}
-    <div id="viewer" role="img" aria-label="Zoomable scan of the original page ${esc(r.pagina)}" data-src="../${esc(img)}"${boxAttrs(r)}></div>
-    <p class="meta">Scroll or use the buttons to zoom, drag to move.</p>
+    <div id="viewer" role="region" tabindex="0" aria-label="Zoomable scan of the original page ${esc(r.pagina)}. Use the arrow keys to move, plus and minus to zoom." data-src="../${esc(img)}"${boxAttrs(r)}></div>
+    <p class="meta">Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.</p>
   </div>
   <span hidden data-pagefind-filter="municipio">${esc(r.municipio)}</span>
   <span hidden data-pagefind-filter="year">${esc(r.anio)}</span>
@@ -123,15 +124,18 @@ export function indexPage(site, count) {
 <script src="pagefind/pagefind-component-ui.js" type="module"></script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header>
   <h1>${esc(site.title)}</h1>
   <p>${esc(site.subtitle)}</p>
   <p class="notice"><strong>Index under review:</strong> machine-produced draft. Each entry shows how reliable the reading is and stays pending human review.</p>
 </header>
+<main id="main">
 ${basePath(site) ? `<pagefind-config base-url="${esc(basePath(site))}"></pagefind-config>\n` : ""}<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
 <pagefind-summary></pagefind-summary>
 <pagefind-results></pagefind-results>
 <p class="meta">${count} entries indexed.</p>
+</main>
 </body>
 </html>
 `;
@@ -144,6 +148,8 @@ if (el && window.OpenSeadragon) {
     prefixUrl: "../vendor/openseadragon/images/",
     tileSources: { type: "image", url: el.dataset.src },
     showNavigator: true,
+    // Respect the reduced-motion preference: no animated zoom or pan.
+    animationTime: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1.2,
     gestureSettingsMouse: { scrollToZoom: true },
   });
   const parse = (s) => (s ? s.split(",").map(Number) : null);
@@ -171,7 +177,11 @@ export const STYLE = `.linecrop { margin: 1rem 0; } .linecrop-box { position: re
 .linecrop-hl, .name-highlight { position: absolute; top: 8%; bottom: 8%; background: rgba(255, 213, 0, .28); outline: 2px solid rgba(214, 160, 0, .9); border-radius: 3px; }
 .name-highlight { position: static; }
 #viewer { width: 100%; height: 32rem; background: #1f1a14; border: 1px solid #b7a582; border-radius: 6px; }
-:root { color-scheme: light; }
+:root { color-scheme: light dark; }
+.skip { position: absolute; left: .5rem; top: -4rem; background: #1d4f7a; color: #fff; padding: .5rem .8rem; border-radius: 4px; z-index: 10; }
+.skip:focus { top: .5rem; }
+:focus-visible { outline: 3px solid #1d4f7a; outline-offset: 2px; }
+#viewer:focus-visible { outline-offset: -3px; }
 body { font-family: Georgia, 'Times New Roman', serif; max-width: 62rem; margin: 0 auto; padding: 1.5rem 1rem; color: #2b2118; background: #f7f2e9; }
 h1 { font-size: 1.6rem; margin: 0 0 .2rem; }
 .meta, header p { color: #6d5c44; font-size: .95rem; }
@@ -181,4 +191,14 @@ h1 { font-size: 1.6rem; margin: 0 0 .2rem; }
 .fuente { font-size: .8rem; color: #6d5c44; }
 a { color: #1d4f7a; }
 :root { --pagefind-ui-scale: 1; --pagefind-ui-primary: #5E8298; --pagefind-ui-background: #fffdf7; --pagefind-ui-border: #b7a582; --pagefind-ui-text: #2b2118; --pagefind-ui-font: Georgia, serif; }
+@media (prefers-color-scheme: dark) {
+  body { color: #efe6d6; background: #1b1712; }
+  .meta, header p, .fuente { color: #c4b698; }
+  a { color: #8fc0ea; }
+  .notice { background: #3a2f17; border-color: #6b5a33; }
+  .alta { background: #25402a; color: #bfe3bb; } .media { background: #3a2f17; color: #e8cd85; } .baja { background: #4a2420; color: #f3b9b2; }
+  :focus-visible { outline-color: #8fc0ea; }
+  :root { --pagefind-ui-primary: #8fb5c9; --pagefind-ui-background: #26201a; --pagefind-ui-border: #6b5a33; --pagefind-ui-text: #efe6d6; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
 `;
