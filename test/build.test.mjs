@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, copyFileSync } from "node:fs";
+import { existsSync, readdirSync, copyFileSync, readFileSync } from "node:fs";
 
 test("sample data builds into an indexed site", () => {
   const had = existsSync("data/records.json");
@@ -19,5 +19,5 @@ test("sample data builds into an indexed site", () => {
 test("the built sample portal is noindex with a blocking robots.txt and no sitemap", () => {
   assert.equal(readFileSync("site/robots.txt", "utf8"), "User-agent: *\nDisallow: /\n");
   assert.equal(existsSync("site/sitemap.xml"), false);
-  for (const f of htmlFiles()) assert.match(readFileSync(f, "utf8"), /<meta name="robots" content="noindex, nofollow">/, f);
+  for (const f of ["site/index.html", ...readdirSync("site/r").map((n) => `site/r/${n}`)]) assert.match(readFileSync(f, "utf8"), /<meta name="robots" content="noindex, nofollow">/, f);
 });
