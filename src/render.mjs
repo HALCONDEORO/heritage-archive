@@ -96,6 +96,7 @@ export function recordPage(r, site) {
   <p class="meta">${esc(r.residencia ?? "")}${r.parroquia ? ", " + esc(r.parroquia) : ""}${r.municipio ? ", " + esc(r.municipio) : ""} · ${esc(r.anio)} · household ${esc(r.hogar)} · page ${esc(r.pagina)}</p>
   <p><span class="tag ${esc(r.confianza)}" data-pagefind-filter="reading">${esc(CONF[r.confianza] ?? r.confianza)}</span>${r.revisado ? ' <span class="tag alta">reviewed</span>' : ' <span class="tag media">not reviewed</span>'}</p>
   <p class="fuente">Source: ${esc(r.fuente)}</p>
+  <p data-pagefind-ignore class="noprint"><button type="button" id="cite" data-cite="${esc(`${full}${r.anio ? ", " + r.anio : ""}${r.pagina ? ", page " + r.pagina : ""}. Source: ${r.fuente}.`)}">Copy citation</button> <span id="cite-status" role="status" class="meta"></span></p>
   <div data-pagefind-ignore>
     <p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">Open the original page (${esc(r.pagina)}) in a new tab</a></p>
     ${lineCropHtml(r)}
@@ -105,7 +106,6 @@ export function recordPage(r, site) {
   <span hidden data-pagefind-filter="municipio">${esc(r.municipio)}</span>
   <span hidden data-pagefind-filter="year">${esc(r.anio)}</span>
 </main>
-<script src="../vendor/openseadragon/openseadragon.min.js"></script>
 <script src="../viewer.js"></script>
 </body>
 </html>
@@ -142,6 +142,16 @@ ${basePath(site) ? `<pagefind-config base-url="${esc(basePath(site))}"></pagefin
 }
 
 export const VIEWER_JS = `const el = document.getElementById("viewer");
+const citeBtn = document.getElementById("cite");
+if (citeBtn) {
+  citeBtn.addEventListener("click", async () => {
+    const text = citeBtn.dataset.cite + " " + location.href.split("#")[0];
+    const status = document.getElementById("cite-status");
+    try { await navigator.clipboard.writeText(text); status.textContent = "Citation copied."; }
+    catch { window.prompt("Copy this citation:", text); }
+  });
+}
+function startViewer() {
 if (el && window.OpenSeadragon) {
   const viewer = OpenSeadragon({
     element: el,
@@ -170,6 +180,23 @@ if (el && window.OpenSeadragon) {
       viewer.viewport.fitBounds(new OpenSeadragon.Rect(r.x - r.width * pad, r.y - r.height * 2, r.width * (1 + 2 * pad), r.height * 5), true);
     });
   }
+}
+}
+// OpenSeadragon (about 190 KB) is loaded only when the viewer is near the screen.
+if (el) {
+  let started = false;
+  const load = () => {
+    if (started) return; started = true;
+    if (window.OpenSeadragon) return startViewer();
+    const sc = document.createElement("script");
+    sc.src = "../vendor/openseadragon/openseadragon.min.js";
+    sc.onload = startViewer;
+    document.head.appendChild(sc);
+  };
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((es, o) => { if (es.some((e) => e.isIntersecting)) { o.disconnect(); load(); } }, { rootMargin: "300px" }).observe(el);
+  } else load();
+  el.addEventListener("focus", load, { once: true });
 }
 `;
 
@@ -201,4 +228,19 @@ a { color: #1d4f7a; }
   :root { --pagefind-ui-primary: #8fb5c9; --pagefind-ui-background: #26201a; --pagefind-ui-border: #6b5a33; --pagefind-ui-text: #efe6d6; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+@media (max-width: 40rem) {
+  body { padding: 1rem .75rem; }
+  #viewer { height: 70vh; min-height: 18rem; }
+  .linecrop-box { max-width: 100%; }
+  a, button { min-height: 44px; display: inline-flex; align-items: center; }
+  p a, .meta a { display: inline; min-height: 0; padding: .35rem 0; }
+}
+button { font: inherit; padding: .4rem .8rem; border: 1px solid #b7a582; border-radius: 6px; background: #fffdf7; color: inherit; cursor: pointer; }
+@media (prefers-color-scheme: dark) { button { background: #26201a; border-color: #6b5a33; } }
+@media print {
+  body { background: #fff; color: #000; max-width: none; }
+  .noprint, #viewer, .skip, nav, pagefind-input { display: none !important; }
+  a { color: #000; text-decoration: none; }
+  .linecrop-box { background-color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 `;

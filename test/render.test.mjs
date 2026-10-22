@@ -137,3 +137,24 @@ test("dark-mode Pagefind variables come after the light ones, so the dark values
   const darkVars = STYLE.indexOf("--pagefind-ui-background", dark);
   assert.ok(light >= 0 && dark > light && darkVars > dark, "light :root must precede the dark media block");
 });
+
+test("OpenSeadragon is loaded lazily by viewer.js, not by a script tag on the page", () => {
+  const html = recordPage(rec, site);
+  assert.doesNotMatch(html, /openseadragon\.min\.js/);
+  assert.match(html, /<script src="\.\.\/viewer\.js"><\/script>/);
+  assert.match(VIEWER_JS, /IntersectionObserver/);
+  assert.match(VIEWER_JS, /openseadragon\.min\.js/);
+  assert.match(VIEWER_JS, /function startViewer\(\)/);
+});
+
+test("record page has a copy-citation button with the escaped citation text", () => {
+  const html = recordPage({ ...rec, nombre: 'A"B', fuente: "Src <x>" }, site);
+  assert.match(html, /<button type="button" id="cite" data-cite="[^"]*page 1\. Source: Src &lt;x&gt;\.">Copy citation<\/button>/);
+  assert.match(html, /id="cite-status" role="status"/);
+  assert.doesNotMatch(html, /data-cite="[^"]*A"B/);
+});
+
+test("stylesheet has a mobile rule for the viewer and a print rule hiding the viewer and controls", () => {
+  assert.match(STYLE, /@media \(max-width: 40rem\)[\s\S]*#viewer \{ height: 70vh/);
+  assert.match(STYLE, /@media print[\s\S]*#viewer/);
+});
