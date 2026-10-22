@@ -65,3 +65,9 @@ test("every record page has a title, a lang attribute and one h1", () => {
     assert.equal((html.match(/<h1\b/g) || []).length, 1, f);
   }
 });
+
+test("the built sample portal is noindex with a blocking robots.txt and no sitemap", () => {
+  assert.equal(readFileSync("site/robots.txt", "utf8"), "User-agent: *\nDisallow: /\n");
+  assert.equal(existsSync("site/sitemap.xml"), false);
+  for (const f of ["site/index.html", ...readdirSync("site/r").map((n) => `site/r/${n}`)]) assert.match(readFileSync(f, "utf8"), /<meta name="robots" content="noindex, nofollow">/, f);
+});
