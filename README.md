@@ -17,7 +17,10 @@ npm run build                                    # writes the portal to site/ an
 npm test
 ```
 
-`data/records.json` and `data/img/` are git-ignored on purpose: real data and scans stay out of this repository. Optional `data/site.json` overrides `lang`, `title`, `subtitle` and `placeholder`.
+`data/records.json` and `data/img/` are git-ignored on purpose: real data and scans stay out of this repository. Optional `data/site.json` overrides `lang`, `title`, `subtitle` and `placeholder`, and sets two publishing options:
+
+- `indexable` (default `false`): by default every page carries `noindex, nofollow` and `robots.txt` disallows everything, because the portal lists named people. Set `true` only when the collection and its audience call for search-engine indexing.
+- `baseUrl` (e.g. `https://example.org/archive/`): where the portal is served. Its path prefixes Pagefind result links, so the portal can live in a subfolder. With `indexable: true` it also produces `sitemap.xml` and the `Sitemap:` line in `robots.txt`.
 
 Serve `site/` with any static file server.
 

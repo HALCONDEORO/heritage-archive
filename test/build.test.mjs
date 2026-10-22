@@ -15,3 +15,9 @@ test("sample data builds into an indexed site", () => {
   assert.ok(existsSync("site/vendor/openseadragon/LICENSE.txt"));
   assert.ok(existsSync("site/img/sample-page.svg"));
 });
+
+test("the built sample portal is noindex with a blocking robots.txt and no sitemap", () => {
+  assert.equal(readFileSync("site/robots.txt", "utf8"), "User-agent: *\nDisallow: /\n");
+  assert.equal(existsSync("site/sitemap.xml"), false);
+  for (const f of htmlFiles()) assert.match(readFileSync(f, "utf8"), /<meta name="robots" content="noindex, nofollow">/, f);
+});
