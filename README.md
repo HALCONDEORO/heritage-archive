@@ -38,3 +38,15 @@ Only record collections where every person is long deceased are indexed.
 ## Credits and license
 
 Third-party components and their licenses are listed in `CREDITS.md`. This project is released under the GNU Affero General Public License v3.0 (see `LICENSE`).
+
+## Fictional Irish demo dataset
+
+`data/records.ie.sample.json`, `data/site.ie.sample.json` and `data/sample-img/ie-sample-page.svg` are a fully fictional 1911-style census page (3 households, 11 people, townland "Ballyfictional") with an English interface. Use them to try the portal or as a public demo:
+
+```sh
+cp data/records.ie.sample.json data/records.json
+cp data/site.ie.sample.json data/site.json
+npm run build
+```
+
+Every name is invented; any resemblance to real people is accidental.
