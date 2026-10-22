@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fold, esc, safeId, safeImage, recordPage, indexPage, safeBox, nameBox, lineCropHtml, NAME_MARGIN, VIEWER_JS } from "../src/render.mjs";
+import { fold, esc, safeId, safeImage, recordPage, indexPage, safeBox, nameBox, lineCropHtml, NAME_MARGIN, VIEWER_JS, STYLE } from "../src/render.mjs";
 
 const site = { lang: "en", title: "Test Archive", subtitle: "s", placeholder: "Search" };
 const rec = { id: "x/1", nombre: "Sampló", apellidos: "Pérez <b>", relacion: "hijo", edad: 9, estado: "soltero", profesion: "", residencia: "A", parroquia: "B", municipio: "C", anio: 1900, pagina: 1, hogar: 1, imagen: "img/p.svg", fuente: "SAMPLE DATA", confianza: "alta", revisado: false };
@@ -102,4 +102,38 @@ test("a record with a hostile name, no image and an out-of-range box still rende
   assert.doesNotMatch(html, /<script>alert/);
   assert.doesNotMatch(html, /etc\/passwd/);
   assert.doesNotMatch(html, /linecrop-box/);
+});
+
+import { robotsMeta, robotsTxt, sitemapXml, basePath } from "../src/render.mjs";
+
+test("pages are noindex by default and indexable only when site.indexable is true", () => {
+  assert.match(recordPage(rec, site), /<meta name="robots" content="noindex, nofollow">/);
+  assert.match(indexPage(site, 1), /<meta name="robots" content="noindex, nofollow">/);
+  assert.doesNotMatch(recordPage(rec, { ...site, indexable: true }), /name="robots"/);
+  assert.doesNotMatch(indexPage(site, 1), /pagefind-config/);
+  assert.equal(robotsMeta({ indexable: "true" }) !== "", true, "only the boolean true opens indexing");
+});
+
+test("robots.txt blocks everything unless indexable; sitemap only with indexable and baseUrl", () => {
+  assert.equal(robotsTxt(site), "User-agent: *\nDisallow: /\n");
+  assert.match(robotsTxt({ ...site, indexable: true, baseUrl: "https://example.org/a" }), /Sitemap: https:\/\/example\.org\/a\/sitemap\.xml/);
+  assert.equal(sitemapXml(site, [rec]), "");
+  assert.equal(sitemapXml({ ...site, indexable: true }, [rec]), "");
+  const xml = sitemapXml({ ...site, indexable: true, baseUrl: "https://example.org/a/" }, [rec]);
+  assert.match(xml, /<loc>https:\/\/example\.org\/a\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.org\/a\/r\/x_1\.html<\/loc>/);
+});
+
+test("baseUrl path prefixes Pagefind result links", () => {
+  assert.equal(basePath(site), "");
+  assert.equal(basePath({ baseUrl: "https://example.org/archive" }), "/archive/");
+  assert.equal(basePath({ baseUrl: "not a url" }), "");
+  assert.match(indexPage({ ...site, baseUrl: "https://example.org/archive/" }, 1), /<pagefind-config base-url="\/archive\/"><\/pagefind-config>/);
+});
+
+test("dark-mode Pagefind variables come after the light ones, so the dark values win the cascade", () => {
+  const light = STYLE.indexOf(":root { --pagefind-ui-scale");
+  const dark = STYLE.indexOf("@media (prefers-color-scheme: dark)");
+  const darkVars = STYLE.indexOf("--pagefind-ui-background", dark);
+  assert.ok(light >= 0 && dark > light && darkVars > dark, "light :root must precede the dark media block");
 });

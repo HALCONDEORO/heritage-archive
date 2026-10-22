@@ -3,6 +3,24 @@ export const fold = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u0
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 // Image paths must be plain relative paths inside the site (no scheme, no "..", no leading slash).
 export const safeImage = (p) => (/^[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/.test(String(p ?? "")) && !String(p).split("/").includes("..") ? String(p) : "");
+// Portal visibility. The portal lists named people, so it is NOT indexable by search engines unless
+// data/site.json sets "indexable": true.
+export const robotsMeta = (site) => (site.indexable === true ? "" : '\n<meta name="robots" content="noindex, nofollow">');
+// "baseUrl" (optional, e.g. "https://example.org/archive/") is where the portal is served. Its path prefixes search result links.
+export function basePath(site) {
+  if (!site.baseUrl) return "";
+  try { const p = new URL(site.baseUrl).pathname; return p.endsWith("/") ? p : p + "/"; } catch { return ""; }
+}
+export function robotsTxt(site) {
+  if (site.indexable !== true) return "User-agent: *\nDisallow: /\n";
+  return `User-agent: *\nAllow: /\n${site.baseUrl ? `Sitemap: ${new URL("sitemap.xml", site.baseUrl.endsWith("/") ? site.baseUrl : site.baseUrl + "/").href}\n` : ""}`;
+}
+export function sitemapXml(site, records) {
+  if (site.indexable !== true || !site.baseUrl) return "";
+  const root = site.baseUrl.endsWith("/") ? site.baseUrl : site.baseUrl + "/";
+  const urls = [root, ...records.map((r) => `${root}r/${safeId(r.id)}.html`)];
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${esc(u)}</loc></url>`).join("\n")}\n</urlset>\n`;
+}
 export const safeId = (id) => String(id).replace(/[^A-Za-z0-9._-]/g, "_");
 
 // Optional line crop: r.linea = { x, y, w, h, aspect? }, all page-relative fractions in 0..1.
@@ -66,7 +84,7 @@ export function recordPage(r, site) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(full)} - ${esc(site.title)}</title>
+<title>${esc(full)} - ${esc(site.title)}</title>${robotsMeta(site)}
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -100,7 +118,7 @@ export function indexPage(site, count) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(site.title)}</title>
+<title>${esc(site.title)}</title>${robotsMeta(site)}
 <link rel="stylesheet" href="style.css">
 <link href="pagefind/pagefind-component-ui.css" rel="stylesheet">
 <script src="pagefind/pagefind-component-ui.js" type="module"></script>
@@ -113,7 +131,7 @@ export function indexPage(site, count) {
   <p class="notice"><strong>Index under review:</strong> machine-produced draft. Each entry shows how reliable the reading is and stays pending human review.</p>
 </header>
 <main id="main">
-<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
+${basePath(site) ? `<pagefind-config base-url="${esc(basePath(site))}"></pagefind-config>\n` : ""}<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
 <pagefind-summary></pagefind-summary>
 <pagefind-results></pagefind-results>
 <p class="meta">${count} entries indexed.</p>
@@ -172,6 +190,7 @@ h1 { font-size: 1.6rem; margin: 0 0 .2rem; }
 .alta { background: #dcefd9; color: #2c5d2c; } .media { background: #fdf0d0; color: #8a6d1f; } .baja { background: #f8ddda; color: #96372e; }
 .fuente { font-size: .8rem; color: #6d5c44; }
 a { color: #1d4f7a; }
+:root { --pagefind-ui-scale: 1; --pagefind-ui-primary: #5E8298; --pagefind-ui-background: #fffdf7; --pagefind-ui-border: #b7a582; --pagefind-ui-text: #2b2118; --pagefind-ui-font: Georgia, serif; }
 @media (prefers-color-scheme: dark) {
   body { color: #efe6d6; background: #1b1712; }
   .meta, header p, .fuente { color: #c4b698; }
@@ -182,5 +201,4 @@ a { color: #1d4f7a; }
   :root { --pagefind-ui-primary: #8fb5c9; --pagefind-ui-background: #26201a; --pagefind-ui-border: #6b5a33; --pagefind-ui-text: #efe6d6; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
-:root { --pagefind-ui-scale: 1; --pagefind-ui-primary: #5E8298; --pagefind-ui-background: #fffdf7; --pagefind-ui-border: #b7a582; --pagefind-ui-text: #2b2118; --pagefind-ui-font: Georgia, serif; }
 `;

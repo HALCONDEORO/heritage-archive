@@ -32,5 +32,5 @@ Not assessed: ArchivesSpace, Blacklight and Tropy. GitHub does not report a clea
 
 ## Known gaps
 
-- Pagefind result links are root-relative: the portal must be served from the site root until a base URL is configured.
+- Pagefind result links are root-relative by default: set `baseUrl` in `data/site.json` when the portal is served from a subfolder.
 - The sample portal uses a synthetic page image only. Real scans stay outside the repository.
