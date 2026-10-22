@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "validate": "node src/validate.mjs",
     "build": "node src/build.mjs && pagefind --site site",
     "test": "node --test"
   },
