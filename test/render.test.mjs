@@ -78,3 +78,28 @@ test("viewer script fits the line and adds a highlight overlay", () => {
   assert.match(VIEWER_JS, /fitBounds/);
   assert.match(VIEWER_JS, /addOverlay/);
 });
+
+test("pages have a skip link to an existing main landmark, and the viewer is keyboard reachable", () => {
+  for (const html of [recordPage(rec, site), indexPage(site, 1)]) {
+    assert.match(html, /<a class="skip" href="#main">/);
+    assert.equal((html.match(/<main\b/g) || []).length, 1);
+    assert.match(html, /<main id="main"/);
+  }
+  assert.match(recordPage(rec, site), /id="viewer" role="region" tabindex="0"/);
+});
+
+test("static a11y checks on generated markup: images have alt, links have text, no empty headings, no positive tabindex", () => {
+  for (const html of [recordPage({ ...rec, imagen: "img/x.svg", linea: { x: 0.1, y: 0.1, w: 0.5, h: 0.05, aspect: 0.75 } }, site), indexPage(site, 1)]) {
+    for (const m of html.matchAll(/<img\b[^>]*>/g)) assert.match(m[0], /\balt="/, m[0]);
+    for (const m of html.matchAll(/<a\b[^>]*>(.*?)<\/a>/gs)) assert.ok(m[1].replace(/<[^>]*>/g, "").trim().length > 0, m[0]);
+    for (const m of html.matchAll(/<h([1-6])\b[^>]*>(.*?)<\/h\1>/gs)) assert.ok(m[2].trim().length > 0);
+    assert.doesNotMatch(html, /tabindex="[1-9]/);
+  }
+});
+
+test("a record with a hostile name, no image and an out-of-range box still renders safely", () => {
+  const html = recordPage({ ...rec, nombre: '<script>alert(1)</script>"', imagen: "../etc/passwd", linea: { x: 2, y: 0, w: 1, h: 1 } }, site);
+  assert.doesNotMatch(html, /<script>alert/);
+  assert.doesNotMatch(html, /etc\/passwd/);
+  assert.doesNotMatch(html, /linecrop-box/);
+});
