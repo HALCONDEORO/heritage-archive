@@ -18,9 +18,9 @@
     "confianza": "alta",
     "revisado": true,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.1938,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -44,9 +44,9 @@
     "confianza": "media",
     "revisado": false,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.2437,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -70,9 +70,9 @@
     "confianza": "baja",
     "revisado": true,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.2938,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -96,9 +96,9 @@
     "confianza": "alta",
     "revisado": false,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.3438,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -122,9 +122,9 @@
     "confianza": "media",
     "revisado": true,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.3937,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -148,9 +148,9 @@
     "confianza": "baja",
     "revisado": false,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.4437,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -174,9 +174,9 @@
     "confianza": "alta",
     "revisado": true,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.4938,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -200,9 +200,9 @@
     "confianza": "media",
     "revisado": false,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.5437,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -226,9 +226,9 @@
     "confianza": "baja",
     "revisado": true,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.5938,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -252,9 +252,9 @@
     "confianza": "alta",
     "revisado": false,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.6438,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
@@ -278,9 +278,9 @@
     "confianza": "media",
     "revisado": true,
     "linea": {
-      "x": 0.1,
+      "x": 0.0625,
       "y": 0.6937,
-      "w": 0.5,
+      "w": 0.75,
       "h": 0.0375,
       "aspect": 0.75
     }
