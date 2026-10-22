@@ -71,3 +71,15 @@ test("the built sample portal is noindex with a blocking robots.txt and no sitem
   assert.equal(existsSync("site/sitemap.xml"), false);
   for (const f of ["site/index.html", ...readdirSync("site/r").map((n) => `site/r/${n}`)]) assert.match(readFileSync(f, "utf8"), /<meta name="robots" content="noindex, nofollow">/, f);
 });
+
+
+test("Irish demo dataset: fictional, unique ids, line boxes inside the page, image exists", () => {
+  const recs = JSON.parse(readFileSync("data/records.ie.sample.json", "utf8"));
+  assert.equal(new Set(recs.map((r) => r.id)).size, recs.length);
+  for (const r of recs) {
+    assert.match(r.fuente, /^DEMO DATA - fictional/);
+    assert.ok(existsSync(`data/sample-img/${r.imagen.replace(/^img\//, "")}`), r.imagen);
+    const l = r.linea;
+    assert.ok(l.x >= 0 && l.y >= 0 && l.x + l.w <= 1 && l.y + l.h <= 1, r.id);
+  }
+});
