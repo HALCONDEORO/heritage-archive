@@ -78,3 +78,30 @@ test("viewer script fits the line and adds a highlight overlay", () => {
   assert.match(VIEWER_JS, /fitBounds/);
   assert.match(VIEWER_JS, /addOverlay/);
 });
+
+import { robotsMeta, robotsTxt, sitemapXml, basePath } from "../src/render.mjs";
+
+test("pages are noindex by default and indexable only when site.indexable is true", () => {
+  assert.match(recordPage(rec, site), /<meta name="robots" content="noindex, nofollow">/);
+  assert.match(indexPage(site, 1), /<meta name="robots" content="noindex, nofollow">/);
+  assert.doesNotMatch(recordPage(rec, { ...site, indexable: true }), /name="robots"/);
+  assert.doesNotMatch(indexPage(site, 1), /pagefind-config/);
+  assert.equal(robotsMeta({ indexable: "true" }) !== "", true, "only the boolean true opens indexing");
+});
+
+test("robots.txt blocks everything unless indexable; sitemap only with indexable and baseUrl", () => {
+  assert.equal(robotsTxt(site), "User-agent: *\nDisallow: /\n");
+  assert.match(robotsTxt({ ...site, indexable: true, baseUrl: "https://example.org/a" }), /Sitemap: https:\/\/example\.org\/a\/sitemap\.xml/);
+  assert.equal(sitemapXml(site, [rec]), "");
+  assert.equal(sitemapXml({ ...site, indexable: true }, [rec]), "");
+  const xml = sitemapXml({ ...site, indexable: true, baseUrl: "https://example.org/a/" }, [rec]);
+  assert.match(xml, /<loc>https:\/\/example\.org\/a\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.org\/a\/r\/x_1\.html<\/loc>/);
+});
+
+test("baseUrl path prefixes Pagefind result links", () => {
+  assert.equal(basePath(site), "");
+  assert.equal(basePath({ baseUrl: "https://example.org/archive" }), "/archive/");
+  assert.equal(basePath({ baseUrl: "not a url" }), "");
+  assert.match(indexPage({ ...site, baseUrl: "https://example.org/archive/" }, 1), /<pagefind-config base-url="\/archive\/"><\/pagefind-config>/);
+});

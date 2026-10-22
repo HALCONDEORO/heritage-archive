@@ -3,6 +3,24 @@ export const fold = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u0
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 // Image paths must be plain relative paths inside the site (no scheme, no "..", no leading slash).
 export const safeImage = (p) => (/^[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/.test(String(p ?? "")) && !String(p).split("/").includes("..") ? String(p) : "");
+// Portal visibility. The portal lists named people, so it is NOT indexable by search engines unless
+// data/site.json sets "indexable": true.
+export const robotsMeta = (site) => (site.indexable === true ? "" : '\n<meta name="robots" content="noindex, nofollow">');
+// "baseUrl" (optional, e.g. "https://example.org/archive/") is where the portal is served. Its path prefixes search result links.
+export function basePath(site) {
+  if (!site.baseUrl) return "";
+  try { const p = new URL(site.baseUrl).pathname; return p.endsWith("/") ? p : p + "/"; } catch { return ""; }
+}
+export function robotsTxt(site) {
+  if (site.indexable !== true) return "User-agent: *\nDisallow: /\n";
+  return `User-agent: *\nAllow: /\n${site.baseUrl ? `Sitemap: ${new URL("sitemap.xml", site.baseUrl.endsWith("/") ? site.baseUrl : site.baseUrl + "/").href}\n` : ""}`;
+}
+export function sitemapXml(site, records) {
+  if (site.indexable !== true || !site.baseUrl) return "";
+  const root = site.baseUrl.endsWith("/") ? site.baseUrl : site.baseUrl + "/";
+  const urls = [root, ...records.map((r) => `${root}r/${safeId(r.id)}.html`)];
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${esc(u)}</loc></url>`).join("\n")}\n</urlset>\n`;
+}
 export const safeId = (id) => String(id).replace(/[^A-Za-z0-9._-]/g, "_");
 
 // Optional line crop: r.linea = { x, y, w, h, aspect? }, all page-relative fractions in 0..1.
@@ -66,7 +84,7 @@ export function recordPage(r, site) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(full)} - ${esc(site.title)}</title>
+<title>${esc(full)} - ${esc(site.title)}</title>${robotsMeta(site)}
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -99,7 +117,7 @@ export function indexPage(site, count) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(site.title)}</title>
+<title>${esc(site.title)}</title>${robotsMeta(site)}
 <link rel="stylesheet" href="style.css">
 <link href="pagefind/pagefind-component-ui.css" rel="stylesheet">
 <script src="pagefind/pagefind-component-ui.js" type="module"></script>
@@ -110,7 +128,7 @@ export function indexPage(site, count) {
   <p>${esc(site.subtitle)}</p>
   <p class="notice"><strong>Index under review:</strong> machine-produced draft. Each entry shows how reliable the reading is and stays pending human review.</p>
 </header>
-<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
+${basePath(site) ? `<pagefind-config base-url="${esc(basePath(site))}"></pagefind-config>\n` : ""}<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
 <pagefind-summary></pagefind-summary>
 <pagefind-results></pagefind-results>
 <p class="meta">${count} entries indexed.</p>
