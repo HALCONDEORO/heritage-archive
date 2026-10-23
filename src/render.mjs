@@ -191,6 +191,10 @@ if (el) {
     const sc = document.createElement("script");
     sc.src = "../vendor/openseadragon/openseadragon.min.js";
     sc.onload = startViewer;
+    sc.onerror = () => {
+      el.setAttribute("aria-live", "polite");
+      el.innerHTML = '<p class="viewer-fallback">The page scan could not be loaded. The transcript below is still available.</p>';
+    };
     document.head.appendChild(sc);
   };
   if ("IntersectionObserver" in window) {
@@ -204,6 +208,7 @@ export const STYLE = `.linecrop { margin: 1rem 0; } .linecrop-box { position: re
 .linecrop-hl, .name-highlight { position: absolute; top: 8%; bottom: 8%; background: rgba(255, 213, 0, .28); outline: 2px solid rgba(214, 160, 0, .9); border-radius: 3px; }
 .name-highlight { position: static; }
 #viewer { width: 100%; height: 32rem; background: #1f1a14; border: 1px solid #b7a582; border-radius: 6px; }
+.viewer-fallback { color: #f3e9d2; padding: 1rem; margin: 0; }
 :root { color-scheme: light dark; }
 .skip { position: absolute; left: .5rem; top: -4rem; background: #1d4f7a; color: #fff; padding: .5rem .8rem; border-radius: 4px; z-index: 10; }
 .skip:focus { top: .5rem; }
