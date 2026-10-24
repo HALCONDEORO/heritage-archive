@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.svg" alt="Heritage Archive: static portals for historical records" width="900">
+</p>
+
 # Heritage Archive
 
 Static portals for historical records archives.
@@ -43,6 +47,9 @@ Only record collections where every person is long deceased are indexed.
 
 Third-party components and their licenses are listed in `CREDITS.md`. This project is released under the GNU Affero General Public License v3.0 (see `LICENSE`).
 
+## Images
+
+`docs/images/` holds the README banner and the social preview (`social.png`, 1280x640). Own work, CC BY 4.0. Text is converted to paths from Playfair Display and Poppins (SIL OFL 1.1).
 ## Fictional Irish demo dataset
 
 `data/records.ie.sample.json`, `data/site.ie.sample.json` and `data/sample-img/ie-sample-page.svg` are a fully fictional 1911-style census page (3 households, 11 people, townland "Ballyfictional") with an English interface. Use them to try the portal or as a public demo:
