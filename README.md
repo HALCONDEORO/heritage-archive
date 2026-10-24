@@ -17,11 +17,15 @@ The transcription pipeline that produces the index from page scans is private an
 ```sh
 npm ci
 cp data/records.sample.json data/records.json   # marked synthetic sample data
-npm run build                                    # writes the portal to site/ and indexes it
+npm run validate                                 # checks data/records.json against docs/MODELO.md
+npm run build                                    # writes the portal to site/ and indexes it (validates first)
 npm test
 ```
 
-`data/records.json` and `data/img/` are git-ignored on purpose: real data and scans stay out of this repository. Optional `data/site.json` overrides `lang`, `title`, `subtitle` and `placeholder`.
+`data/records.json` and `data/img/` are git-ignored on purpose: real data and scans stay out of this repository. Optional `data/site.json` overrides `lang`, `title`, `subtitle` and `placeholder`, and sets two publishing options:
+
+- `indexable` (default `false`): by default every page carries `noindex, nofollow` and `robots.txt` disallows everything, because the portal lists named people. Set `true` only when the collection and its audience call for search-engine indexing.
+- `baseUrl` (e.g. `https://example.org/archive/`): where the portal is served. Its path prefixes Pagefind result links, so the portal can live in a subfolder. With `indexable: true` it also produces `sitemap.xml` and the `Sitemap:` line in `robots.txt`.
 
 Serve `site/` with any static file server.
 
@@ -46,3 +50,14 @@ Third-party components and their licenses are listed in `CREDITS.md`. This proje
 ## Images
 
 `docs/images/` holds the README banner and the social preview (`social.png`, 1280x640). Own work, CC BY 4.0. Text is converted to paths from Playfair Display and Poppins (SIL OFL 1.1).
+## Fictional Irish demo dataset
+
+`data/records.ie.sample.json`, `data/site.ie.sample.json` and `data/sample-img/ie-sample-page.svg` are a fully fictional 1911-style census page (3 households, 11 people, townland "Ballyfictional") with an English interface. Use them to try the portal or as a public demo:
+
+```sh
+cp data/records.ie.sample.json data/records.json
+cp data/site.ie.sample.json data/site.json
+npm run build
+```
+
+Every name is invented; any resemblance to real people is accidental.
