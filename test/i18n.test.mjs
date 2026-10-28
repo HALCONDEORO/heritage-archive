@@ -25,3 +25,14 @@ test('viewer copy, fallback and language detection support Spanish without remov
  for(const v of ['Cita copiada.','Citation copied.','Copia esta cita:','Copy this citation:','No se ha podido cargar la imagen.','The page scan could not be loaded.'])assert.ok(VIEWER_JS.includes(v));
  assert.ok(VIEWER_JS.includes('document.documentElement.lang'));
 });
+test('age singular and plural are correct in Spanish and English',()=>{
+ for(const [lang,one,many] of [['es','1 año','2 años'],['en','1 year','2 years']]){
+  assert.ok(recordPage({...rec,edad:1},{lang}).includes(one));
+  assert.ok(recordPage({...rec,edad:2},{lang}).includes(many));
+ }
+});
+test('Spanish viewer tooltips, errors and gesture labels are set before viewer creation',()=>{
+ for(const key of ['Tooltips.ZoomIn','Tooltips.ZoomOut','Tooltips.Home','Tooltips.FullPage','Tooltips.NextPage','Tooltips.PreviousPage','Tooltips.RotateLeft','Tooltips.RotateRight','Tooltips.Flip','GestureHints.Touch','GestureHints.Scroll','Errors.Dzc','Errors.Dzi','Errors.Xml','Errors.ImageFormat','Errors.Security','Errors.Status','Errors.OpenFailed'])assert.ok(VIEWER_JS.includes('"'+key+'"'),key);
+ assert.ok(VIEWER_JS.indexOf('OpenSeadragon.setString')<VIEWER_JS.indexOf('const viewer = OpenSeadragon'));
+ assert.ok(VIEWER_JS.includes('if (es)'));
+});

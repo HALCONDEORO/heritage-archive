@@ -2,6 +2,7 @@ const ES_UI = {
   "Skip to content": "Saltar al contenido",
   "Breadcrumb": "Ruta de navegación",
   "years": "años",
+  "year": "año",
   "household": "hogar",
   "page": "página",
   "reviewed": "revisado",
@@ -107,7 +108,7 @@ function boxAttrs(r) {
 export function recordPage(r, site) {
   const img = safeImage(r.imagen);
   const full = `${r.nombre} ${r.apellidos}`.trim();
-  const meta = [r.relacion, r.edad != null ? `${r.edad} ${ui(site, "years")}` : "", r.estado, r.profesion].filter(Boolean).map(esc).join(" · ");
+  const meta = [r.relacion, r.edad != null ? `${r.edad} ${ui(site, Number(r.edad) === 1 ? "year" : "years")}` : "", r.estado, r.profesion].filter(Boolean).map(esc).join(" · ");
   return `<!doctype html>
 <html lang="${esc(site.lang)}">
 <head>
@@ -208,6 +209,29 @@ if (citeBtn) {
 }
 function startViewer() {
 if (el && window.OpenSeadragon) {
+  if (es) {
+    const strings = {
+      "Errors.Dzc": "Las colecciones Deep Zoom no son compatibles.",
+      "Errors.Dzi": "La imagen no es un documento Deep Zoom válido.",
+      "Errors.Xml": "El documento XML no es válido.",
+      "Errors.ImageFormat": "El formato de imagen no es compatible.",
+      "Errors.Security": "El navegador ha bloqueado la imagen.",
+      "Errors.Status": "La imagen no está disponible (estado {0}).",
+      "Errors.OpenFailed": "No se ha podido abrir {0}: {1}",
+      "Tooltips.FullPage": "Alternar pantalla completa",
+      "Tooltips.Home": "Ver la página completa",
+      "Tooltips.ZoomIn": "Ampliar",
+      "Tooltips.ZoomOut": "Reducir",
+      "Tooltips.NextPage": "Página siguiente",
+      "Tooltips.PreviousPage": "Página anterior",
+      "Tooltips.RotateLeft": "Girar a la izquierda",
+      "Tooltips.RotateRight": "Girar a la derecha",
+      "Tooltips.Flip": "Voltear la imagen",
+      "GestureHints.Touch": "Usa dos dedos para mover la imagen",
+      "GestureHints.Scroll": "Usa {0} y la rueda para ampliar la imagen"
+    };
+    for (const [key, value] of Object.entries(strings)) OpenSeadragon.setString(key, value);
+  }
   const viewer = OpenSeadragon({
     element: el,
     prefixUrl: "../vendor/openseadragon/images/",
