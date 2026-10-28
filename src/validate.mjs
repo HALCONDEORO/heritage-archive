@@ -37,6 +37,8 @@ export function validateRecords(records) {
       else if (!r.imagen) err("linea needs imagen");
       else if (!(Number(r.linea.aspect) > 0.1 && Number(r.linea.aspect) < 10)) err("linea.aspect (page width / height, 0.1-10) is needed for the static crop");
     }
+    for (const k of ["lectura_original", "correccion"]) if (r[k] != null && !isStr(r[k])) err(`${k} must be a non-empty string`);
+    if (r.correccion != null && !isStr(r.lectura_original)) err("correccion needs lectura_original; never replace the original reading");
     if (r.variantes != null && !(Array.isArray(r.variantes) && r.variantes.every(isStr))) err("variantes must be an array of non-empty strings");
   });
   return errors;

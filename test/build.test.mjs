@@ -33,7 +33,8 @@ const htmlFiles = () => walk("site").filter((f) => f.endsWith(".html") && !f.sta
 test("every local link, script, stylesheet and image in the built pages resolves to a file", () => {
   const missing = [];
   for (const f of htmlFiles()) {
-    const html = readFileSync(f, "utf8");
+    // Template bodies are inert until Pagefind interpolates result URLs.
+    const html = readFileSync(f, "utf8").replace(/<script\b[^>]*type="text\/pagefind-template"[^>]*>[\s\S]*?<\/script>/g, "");
     for (const m of html.matchAll(/\b(?:href|src)="([^"#?]+)(?:[#?][^"]*)?"/g)) {
       const u = m[1];
       if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|mailto:)/i.test(u)) continue;
