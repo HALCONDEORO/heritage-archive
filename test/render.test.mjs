@@ -128,7 +128,7 @@ test("baseUrl path prefixes Pagefind result links", () => {
   assert.equal(basePath(site), "");
   assert.equal(basePath({ baseUrl: "https://example.org/archive" }), "/archive/");
   assert.equal(basePath({ baseUrl: "not a url" }), "");
-  assert.match(indexPage({ ...site, baseUrl: "https://example.org/archive/" }, 1), /<pagefind-config base-url="\/archive\/"><\/pagefind-config>/);
+  assert.match(indexPage({ ...site, baseUrl: "https://example.org/archive/" }, 1), /<pagefind-config base-url="\/archive\/" bundle-path="\/archive\/pagefind\/"><\/pagefind-config>/);
 });
 
 test("dark-mode Pagefind variables come after the light ones, so the dark values win the cascade", () => {
