@@ -3,6 +3,7 @@ const ES_UI = {
   "Breadcrumb": "Ruta de navegación",
   "years": "años",
   "year": "año",
+  "The original image is not available for this record.": "La imagen original no está disponible para esta ficha.",
   "household": "hogar",
   "page": "página",
   "reviewed": "revisado",
@@ -128,10 +129,10 @@ export function recordPage(r, site) {
   <p class="fuente">${ui(site, "Source:")} ${esc(r.fuente)}</p>
   <p data-pagefind-ignore class="noprint"><button type="button" id="cite" data-cite="${esc(`${full}${r.anio ? ", " + r.anio : ""}${r.pagina ? ", " + ui(site, "page") + " " + r.pagina : ""}. ${ui(site, "Source:")} ${r.fuente}.`)}">${ui(site, "Copy citation")}</button> <span id="cite-status" role="status" class="meta"></span></p>
   <div data-pagefind-ignore>
-    <p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">${ui(site, "Open the original page")} (${esc(r.pagina)}) ${ui(site, "in a new tab")}</a></p>
+    ${img ? `<p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">${ui(site, "Open the original page")} (${esc(r.pagina)}) ${ui(site, "in a new tab")}</a></p>
     ${lineCropHtml(r, site)}
     <div id="viewer" role="region" tabindex="0" aria-label="${ui(site, "Zoomable scan of the original page")} ${esc(r.pagina)}. ${ui(site, "Use the arrow keys to move, plus and minus to zoom.")}" data-src="../${esc(img)}"${boxAttrs(r)}></div>
-    <p class="meta">${ui(site, "Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.")}</p>
+    <p class="meta">${ui(site, "Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.")}</p>` : `<p class="meta image-unavailable">${ui(site, "The original image is not available for this record.")}</p>`}
   </div>
   <span hidden data-pagefind-filter="municipio">${esc(r.municipio)}</span>
   <span hidden data-pagefind-filter="year">${esc(r.anio)}</span>
