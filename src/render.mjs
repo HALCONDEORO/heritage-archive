@@ -1,3 +1,31 @@
+const ES_UI = {
+  "Skip to content": "Saltar al contenido",
+  "Breadcrumb": "Ruta de navegación",
+  "years": "años",
+  "household": "hogar",
+  "page": "página",
+  "reviewed": "revisado",
+  "not reviewed": "pendiente de revisión",
+  "Source:": "Fuente:",
+  "Copy citation": "Copiar cita",
+  "Page not found": "Página no encontrada",
+  "This page does not exist.": "Esta página no existe.",
+  "Search the index": "Buscar en el índice",
+  "to find a record by name.": "para encontrar una ficha por nombre.",
+  "entries indexed.": "asientos indexados.",
+  "Crop of the original line for": "Recorte de la línea original de",
+  "Line of the original page, name highlighted. Machine-detected box, pending review.": "Línea de la página original con el nombre resaltado. Recuadro detectado por IA, pendiente de revisión.",
+  "Index under review:": "Índice en revisión:",
+  "machine-produced draft. Each entry shows how reliable the reading is and stays pending human review.": "borrador producido por IA a partir de las imágenes; cada ficha marca la confianza de la lectura y queda pendiente de revisión humana.",
+  "Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.": "Desplázate o usa los botones para ampliar; arrastra para mover. Con el teclado: flechas para mover, más y menos para ampliar.",
+  "Zoomable scan of the original page": "Imagen ampliable de la página original",
+  "Use the arrow keys to move, plus and minus to zoom.": "Usa las flechas para mover, más y menos para ampliar.",
+  "Open the original page": "Abrir la página original",
+  "in a new tab": "en otra pestaña"
+};
+const isSpanish = (site = {}) => /^es(?:-|$)/i.test(String(site.lang ?? ""));
+const ui = (site, text) => isSpanish(site) ? (ES_UI[text] ?? text) : text;
+
 // Pure rendering helpers (no file I/O) so they can be unit tested.
 export const fold = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -48,7 +76,7 @@ const pct = (n) => `${Math.round(n * 10000) / 100}%`;
 
 // Static, script-free crop: the page image as a CSS background, zoomed to the line,
 // with the name highlighted on top. Needs the page aspect ratio.
-export function lineCropHtml(r) {
+export function lineCropHtml(r, site = {}) {
   const img = safeImage(r.imagen);
   const line = safeBox(r.linea);
   const name = nameBox(r.linea);
@@ -58,14 +86,15 @@ export function lineCropHtml(r) {
   const posY = line.h >= 1 ? 0 : (line.y / (1 - line.h)) * 100;
   const hl = `left:${pct((name.x - line.x) / line.w)};width:${pct(name.w / line.w)}`;
   return `<figure class="linecrop" data-pagefind-ignore>
-    <div class="linecrop-box" role="img" aria-label="Crop of the original line for ${esc(r.nombre)} ${esc(r.apellidos)}" style="aspect-ratio:${Math.round(lineAspect * 100) / 100};background-image:url('../${esc(img)}');background-size:${pct(1 / line.w)} auto;background-position:${Math.round(posX * 100) / 100}% ${Math.round(posY * 100) / 100}%">
+    <div class="linecrop-box" role="img" aria-label="${ui(site, "Crop of the original line for")} ${esc(r.nombre)} ${esc(r.apellidos)}" style="aspect-ratio:${Math.round(lineAspect * 100) / 100};background-image:url('../${esc(img)}');background-size:${pct(1 / line.w)} auto;background-position:${Math.round(posX * 100) / 100}% ${Math.round(posY * 100) / 100}%">
       <span class="linecrop-hl" style="${hl}"></span>
     </div>
-    <figcaption class="meta">Line of the original page, name highlighted. Machine-detected box, pending review.</figcaption>
+    <figcaption class="meta">${ui(site, "Line of the original page, name highlighted. Machine-detected box, pending review.")}</figcaption>
   </figure>`;
 }
 
 const CONF = { alta: "reliable reading", media: "check reading", baja: "doubtful reading" };
+const CONF_ES = { alta: "lectura segura", media: "revisar lectura", baja: "lectura dudosa" };
 
 function boxAttrs(r) {
   const line = safeBox(r.linea);
@@ -78,7 +107,7 @@ function boxAttrs(r) {
 export function recordPage(r, site) {
   const img = safeImage(r.imagen);
   const full = `${r.nombre} ${r.apellidos}`.trim();
-  const meta = [r.relacion, r.edad != null ? `${r.edad} years` : "", r.estado, r.profesion].filter(Boolean).map(esc).join(" · ");
+  const meta = [r.relacion, r.edad != null ? `${r.edad} ${ui(site, "years")}` : "", r.estado, r.profesion].filter(Boolean).map(esc).join(" · ");
   return `<!doctype html>
 <html lang="${esc(site.lang)}">
 <head>
@@ -88,20 +117,20 @@ export function recordPage(r, site) {
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<nav data-pagefind-ignore aria-label="Breadcrumb"><a href="../index.html">&larr; ${esc(site.title)}</a></nav>
+<a class="skip" href="#main">${ui(site, "Skip to content")}</a>
+<nav data-pagefind-ignore aria-label="${ui(site, "Breadcrumb")}"><a href="../index.html">&larr; ${esc(site.title)}</a></nav>
 <main id="main" data-pagefind-body>
   <h1 data-pagefind-meta="title">${esc(full)}</h1>
   <p class="meta">${meta}</p>
-  <p class="meta">${esc(r.residencia ?? "")}${r.parroquia ? ", " + esc(r.parroquia) : ""}${r.municipio ? ", " + esc(r.municipio) : ""} · ${esc(r.anio)} · household ${esc(r.hogar)} · page ${esc(r.pagina)}</p>
-  <p><span class="tag ${esc(r.confianza)}" data-pagefind-filter="reading">${esc(CONF[r.confianza] ?? r.confianza)}</span>${r.revisado ? ' <span class="tag alta">reviewed</span>' : ' <span class="tag media">not reviewed</span>'}</p>
-  <p class="fuente">Source: ${esc(r.fuente)}</p>
-  <p data-pagefind-ignore class="noprint"><button type="button" id="cite" data-cite="${esc(`${full}${r.anio ? ", " + r.anio : ""}${r.pagina ? ", page " + r.pagina : ""}. Source: ${r.fuente}.`)}">Copy citation</button> <span id="cite-status" role="status" class="meta"></span></p>
+  <p class="meta">${esc(r.residencia ?? "")}${r.parroquia ? ", " + esc(r.parroquia) : ""}${r.municipio ? ", " + esc(r.municipio) : ""} · ${esc(r.anio)} · ${ui(site, "household")} ${esc(r.hogar)} · ${ui(site, "page")} ${esc(r.pagina)}</p>
+  <p><span class="tag ${esc(r.confianza)}" data-pagefind-filter="reading">${esc((isSpanish(site) ? CONF_ES : CONF)[r.confianza] ?? r.confianza)}</span>${r.revisado ? ` <span class="tag alta">${ui(site, "reviewed")}</span>` : ` <span class="tag media">${ui(site, "not reviewed")}</span>`}</p>
+  <p class="fuente">${ui(site, "Source:")} ${esc(r.fuente)}</p>
+  <p data-pagefind-ignore class="noprint"><button type="button" id="cite" data-cite="${esc(`${full}${r.anio ? ", " + r.anio : ""}${r.pagina ? ", " + ui(site, "page") + " " + r.pagina : ""}. ${ui(site, "Source:")} ${r.fuente}.`)}">${ui(site, "Copy citation")}</button> <span id="cite-status" role="status" class="meta"></span></p>
   <div data-pagefind-ignore>
-    <p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">Open the original page (${esc(r.pagina)}) in a new tab</a></p>
-    ${lineCropHtml(r)}
-    <div id="viewer" role="region" tabindex="0" aria-label="Zoomable scan of the original page ${esc(r.pagina)}. Use the arrow keys to move, plus and minus to zoom." data-src="../${esc(img)}"${boxAttrs(r)}></div>
-    <p class="meta">Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.</p>
+    <p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">${ui(site, "Open the original page")} (${esc(r.pagina)}) ${ui(site, "in a new tab")}</a></p>
+    ${lineCropHtml(r, site)}
+    <div id="viewer" role="region" tabindex="0" aria-label="${ui(site, "Zoomable scan of the original page")} ${esc(r.pagina)}. ${ui(site, "Use the arrow keys to move, plus and minus to zoom.")}" data-src="../${esc(img)}"${boxAttrs(r)}></div>
+    <p class="meta">${ui(site, "Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.")}</p>
   </div>
   <span hidden data-pagefind-filter="municipio">${esc(r.municipio)}</span>
   <span hidden data-pagefind-filter="year">${esc(r.anio)}</span>
@@ -121,16 +150,16 @@ export function notFoundPage(site) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page not found - ${esc(site.title)}</title>
+<title>${ui(site, "Page not found")} - ${esc(site.title)}</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="${esc(home)}style.css">
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main">${ui(site, "Skip to content")}</a>
 <header><h1>${esc(site.title)}</h1></header>
 <main id="main">
-<h2>Page not found</h2>
-<p>This page does not exist. <a href="${esc(home)}">Search the index</a> to find a record by name.</p>
+<h2>${ui(site, "Page not found")}</h2>
+<p>${ui(site, "This page does not exist.")} <a href="${esc(home)}">${ui(site, "Search the index")}</a> ${ui(site, "to find a record by name.")}</p>
 </main>
 </body>
 </html>
@@ -149,31 +178,32 @@ export function indexPage(site, count) {
 <script src="pagefind/pagefind-component-ui.js" type="module"></script>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main">${ui(site, "Skip to content")}</a>
 <header>
   <h1>${esc(site.title)}</h1>
   <p>${esc(site.subtitle)}</p>
-  <p class="notice"><strong>Index under review:</strong> machine-produced draft. Each entry shows how reliable the reading is and stays pending human review.</p>
+  <p class="notice"><strong>${ui(site, "Index under review:")}</strong> ${ui(site, "machine-produced draft. Each entry shows how reliable the reading is and stays pending human review.")}</p>
 </header>
 <main id="main">
-${basePath(site) ? `<pagefind-config base-url="${esc(basePath(site))}"></pagefind-config>\n` : ""}<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
+${basePath(site) ? `<pagefind-config base-url="${esc(basePath(site))}" bundle-path="${esc(basePath(site))}pagefind/"></pagefind-config>\n` : ""}<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
 <pagefind-summary></pagefind-summary>
 <pagefind-results></pagefind-results>
-<p class="meta">${count} entries indexed.</p>
+<p class="meta">${count} ${ui(site, "entries indexed.")}</p>
 </main>
 </body>
 </html>
 `;
 }
 
-export const VIEWER_JS = `const el = document.getElementById("viewer");
+export const VIEWER_JS = `const es = /^es(?:-|$)/i.test(document.documentElement.lang);
+const el = document.getElementById("viewer");
 const citeBtn = document.getElementById("cite");
 if (citeBtn) {
   citeBtn.addEventListener("click", async () => {
     const text = citeBtn.dataset.cite + " " + location.href.split("#")[0];
     const status = document.getElementById("cite-status");
-    try { await navigator.clipboard.writeText(text); status.textContent = "Citation copied."; }
-    catch { window.prompt("Copy this citation:", text); }
+    try { await navigator.clipboard.writeText(text); status.textContent = es ? "Cita copiada." : "Citation copied."; }
+    catch { window.prompt(es ? "Copia esta cita:" : "Copy this citation:", text); }
   });
 }
 function startViewer() {
@@ -218,7 +248,7 @@ if (el) {
     sc.onload = startViewer;
     sc.onerror = () => {
       el.setAttribute("aria-live", "polite");
-      el.innerHTML = '<p class="viewer-fallback">The page scan could not be loaded. The transcript below is still available.</p>';
+      el.innerHTML = '<p class="viewer-fallback">' + (es ? 'No se ha podido cargar la imagen. Los datos de la ficha siguen disponibles.' : 'The page scan could not be loaded. The transcript below is still available.') + '</p>';
     };
     document.head.appendChild(sc);
   };
