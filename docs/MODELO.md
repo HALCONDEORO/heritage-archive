@@ -42,3 +42,11 @@ Reglas:
 - `hogar` agrupa a las personas de la misma casa (el padrón es por hogares).
 - `confianza` viene del HTR; todo asiento entra con `revisado: false` hasta revisión humana.
 - La imagen de cada asiento es la PÁGINA completa (el ayuntamiento conserva el documento; nosotros enlazamos página + posición).
+
+## Reading provenance (optional)
+
+- `lectura_original`: original machine reading as a non-empty string. Preserve it verbatim, including uncertain characters; the HTML renderer escapes it.
+- `correccion`: a separate proposed or reviewed reading as a non-empty string. Requires `lectura_original` and never replaces it. `revisado` determines whether the correction is labelled proposed or reviewed. Names and other structured fields keep their existing meaning; no automatic edits or truth claims are made.
+- Search results expose the supplied source, page and OCR review status. Where a safe page-image path exists, a stable `#source-region` link opens that page's source section. Existing valid `linea` coordinates guide OpenSeadragon; without them the full page opens. Never invent coordinates or label a crop reviewed merely because the record is reviewed.
+- The portal and Pagefind index are static output, not an access-control boundary. Include only material approved for the portal's audience. Unknown fields (for example private notes) are not rendered, but displayed source/reading fields are searchable public output when published. `noindex` is not privacy protection.
+- Development fixtures must be fictional. Do not commit real archive scans, private family records, credentials or private annotations.

@@ -1,4 +1,9 @@
 const ES_UI = {
+  "OCR not reviewed": "OCR no revisado",
+  "Original reading": "Lectura original",
+  "Proposed correction": "Corrección propuesta",
+  "Reviewed correction": "Corrección revisada",
+  "View source page / region": "Ver página / región de la fuente",
   "Skip to content": "Saltar al contenido",
   "Breadcrumb": "Ruta de navegación",
   "years": "años",
@@ -126,13 +131,16 @@ export function recordPage(r, site) {
   <p class="meta">${meta}</p>
   <p class="meta">${esc(r.residencia ?? "")}${r.parroquia ? ", " + esc(r.parroquia) : ""}${r.municipio ? ", " + esc(r.municipio) : ""} · ${esc(r.anio)} · ${ui(site, "household")} ${esc(r.hogar)} · ${ui(site, "page")} ${esc(r.pagina)}</p>
   <p><span class="tag ${esc(r.confianza)}" data-pagefind-filter="reading">${esc((isSpanish(site) ? CONF_ES : CONF)[r.confianza] ?? r.confianza)}</span>${r.revisado ? ` <span class="tag alta">${ui(site, "reviewed")}</span>` : ` <span class="tag media">${ui(site, "not reviewed")}</span>`}</p>
-  <p class="fuente">${ui(site, "Source:")} ${esc(r.fuente)}</p>
+  <p class="fuente">${ui(site, "Source:")} <span data-pagefind-meta="source">${esc(r.fuente)}</span> · ${ui(site, "page")} <span data-pagefind-meta="page">${esc(r.pagina)}</span></p>
+  <p class="meta" data-pagefind-meta="review">${r.revisado ? ui(site, "reviewed") : ui(site, "OCR not reviewed")}</p>
+  ${r.lectura_original ? `<section class="reading"><h2>${ui(site, "Original reading")}</h2><p>${esc(r.lectura_original)}</p>${r.correccion ? `<h2>${ui(site, r.revisado ? "Reviewed correction" : "Proposed correction")}</h2><p>${esc(r.correccion)}</p>` : ""}</section>` : ""}
+  ${img ? '<span hidden data-pagefind-meta="source_anchor:#source-region"></span>' : ""}
   <p data-pagefind-ignore class="noprint"><button type="button" id="cite" data-cite="${esc(`${full}${r.anio ? ", " + r.anio : ""}${r.pagina ? ", " + ui(site, "page") + " " + r.pagina : ""}. ${ui(site, "Source:")} ${r.fuente}.`)}">${ui(site, "Copy citation")}</button> <span id="cite-status" role="status" class="meta"></span></p>
   <div data-pagefind-ignore>
-    ${img ? `<p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">${ui(site, "Open the original page")} (${esc(r.pagina)}) ${ui(site, "in a new tab")}</a></p>
+    ${img ? `<div id="source-region" tabindex="-1"><p><a class="doc" href="../${esc(img)}" target="_blank" rel="noopener">${ui(site, "Open the original page")} (${esc(r.pagina)}) ${ui(site, "in a new tab")}</a></p>
     ${lineCropHtml(r, site)}
     <div id="viewer" role="region" tabindex="0" aria-label="${ui(site, "Zoomable scan of the original page")} ${esc(r.pagina)}. ${ui(site, "Use the arrow keys to move, plus and minus to zoom.")}" data-src="../${esc(img)}"${boxAttrs(r)}></div>
-    <p class="meta">${ui(site, "Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.")}</p>` : `<p class="meta image-unavailable">${ui(site, "The original image is not available for this record.")}</p>`}
+    <p class="meta">${ui(site, "Scroll or use the buttons to zoom, drag to move. With the keyboard: arrow keys to move, plus and minus to zoom.")}</p></div>` : `<p class="meta image-unavailable">${ui(site, "The original image is not available for this record.")}</p>`}
   </div>
   <span hidden data-pagefind-filter="municipio">${esc(r.municipio)}</span>
   <span hidden data-pagefind-filter="year">${esc(r.anio)}</span>
@@ -189,7 +197,16 @@ export function indexPage(site, count) {
 <main id="main">
 ${basePath(site) ? `<pagefind-config base-url="${esc(basePath(site))}" bundle-path="${esc(basePath(site))}pagefind/"></pagefind-config>\n` : ""}<pagefind-input placeholder="${esc(site.placeholder)}"></pagefind-input>
 <pagefind-summary></pagefind-summary>
-<pagefind-results></pagefind-results>
+<pagefind-results>
+<script type="text/pagefind-template">
+<li class="archive-result">
+  <h2><a href="{{ url | safeUrl }}">{{ meta.title }}</a></h2>
+  <p class="meta">${ui(site, "Source:")} {{ meta.source }} · ${ui(site, "page")} {{ meta.page }} · {{ meta.review }}</p>
+  {{#if meta.source_anchor}}<p><a href="{{ url | safeUrl }}#source-region">${ui(site, "View source page / region")}</a></p>{{/if}}
+  {{#if excerpt}}<p>{{+ excerpt +}}</p>{{/if}}
+</li>
+</script>
+</pagefind-results>
 <p class="meta">${count} ${ui(site, "entries indexed.")}</p>
 </main>
 </body>
@@ -284,7 +301,8 @@ if (el) {
 }
 `;
 
-export const STYLE = `.linecrop { margin: 1rem 0; } .linecrop-box { position: relative; width: 100%; max-width: 40rem; background-repeat: no-repeat; border: 1px solid #b7a582; border-radius: 4px; background-color: #1f1a14; }
+export const STYLE = `.archive-result { list-style:none; border:1px solid #b7a582; border-radius:6px; padding:.8rem; margin:.5rem 0; overflow-wrap:anywhere; } .archive-result h2 { font-size:1.1rem; margin:0; } .archive-result p { margin:.5rem 0; } .reading p { white-space:pre-wrap; overflow-wrap:anywhere; } #source-region { scroll-margin-top:1rem; }
+.linecrop { margin: 1rem 0; } .linecrop-box { position: relative; width: 100%; max-width: 40rem; background-repeat: no-repeat; border: 1px solid #b7a582; border-radius: 4px; background-color: #1f1a14; }
 .linecrop-hl, .name-highlight { position: absolute; top: 8%; bottom: 8%; background: rgba(255, 213, 0, .28); outline: 2px solid rgba(214, 160, 0, .9); border-radius: 3px; }
 .name-highlight { position: static; }
 #viewer { width: 100%; height: 32rem; background: #1f1a14; border: 1px solid #b7a582; border-radius: 6px; }
