@@ -1,22 +1,33 @@
 name: ci
+
 on:
   push:
     branches: [main]
   pull_request:
+
 permissions:
   contents: read
+
 jobs:
-  build-test:
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      # actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      # actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      # The real data/records.json is gitignored (private working data);
+      # the README setup step materializes the committed synthetic sample.
+      - run: cp data/records.sample.json data/records.json
+      # Data contract: records must stay within the schema (offline).
+      - run: npm run validate
+      # Offline unit tests: build, render and validate suites. No network.
       - run: npm test
-      - name: Build sample portal
-        run: |
-          cp data/records.sample.json data/records.json
-          npm run build
+      # Full static build plus pagefind index (pagefind ships as an npm
+      # devDependency, so this stays offline too).
+      - run: npm run build
