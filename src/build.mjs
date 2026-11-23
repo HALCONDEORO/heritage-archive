@@ -1,7 +1,8 @@
 // Static portal generator: data/records.json -> site/ (index page + one page per record),
 // then Pagefind (MIT) indexes the pages for in-browser, accent-insensitive search.
 // Run with `npm run build`. Output is plain HTML/CSS/JS.
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync, rmSync, cpSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, rmSync, cpSync } from "node:fs";
+import { copyImageTree } from "./images.mjs";
 import { validateRecords } from "./validate.mjs";
 import { recordPage, indexPage, safeId, robotsTxt, sitemapXml, notFoundPage, STYLE, VIEWER_JS } from "./render.mjs";
 
@@ -26,7 +27,7 @@ mkdirSync("site/r", { recursive: true });
 for (const dir of ["data/sample-img", "data/img"]) {
   if (!existsSync(dir)) continue;
   mkdirSync("site/img", { recursive: true });
-  for (const f of readdirSync(dir)) copyFileSync(`${dir}/${f}`, `site/img/${f}`);
+  copyImageTree(dir, "site/img");
 }
 
 // OpenSeadragon (BSD-3-Clause) viewer, copied from node_modules with its license.
